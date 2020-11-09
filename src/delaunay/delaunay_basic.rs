@@ -831,7 +831,7 @@ where
         }
     }
 
-    fn fill_hole(&mut self, loop_edges: Vec<FixedEdgeHandle>) {
+    fn fill_hole(&mut self, loop_edges: Vec<FixedEdgeHandle>) -> Result<(), String> {
         let mut border_edges = HashSet::new();
 
         for e in &loop_edges {
@@ -848,7 +848,10 @@ where
             todo.push(edge);
         }
         // Legalize edges
+        let max_iterations = loop_edges.len().pow(2);
+        let mut count = 0;
         while let Some(fixed_edge_handle) = todo.pop() {
+            count += 1;
             let (v0, v1, vl, vr, e1, e2, e3, e4);
             {
                 let edge = self.s().edge(fixed_edge_handle);
@@ -861,6 +864,10 @@ where
                 e3 = edge.sym().cw().fix();
                 e4 = edge.sym().ccw().fix();
             }
+
+            if count > max_iterations {
+                return Err("Fill hole max iterations reached.".to_string());
+            }
             if !Self::Kernel::contained_in_circumference(&v0, &v1, &vl, &vr) {
                 // Flip edge
                 self.s_mut().flip_cw(fixed_edge_handle);
@@ -872,6 +879,7 @@ where
                 }
             }
         }
+        Ok(())
     }
 
     #[cfg(test)]
