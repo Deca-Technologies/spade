@@ -31,7 +31,7 @@ approx = "0.3"
 criterion = "0.3"
 
 [dev-dependencies.cgmath]
-version = "<=0.17.*"
+version = "0.18"
 features = ["serde"]
 
 [profile.bench]
